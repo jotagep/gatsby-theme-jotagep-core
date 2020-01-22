@@ -1,14 +1,16 @@
 import React, { useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 
-import { LangProvider } from '../../context/LangContext';
-import { TranslateProvider } from '../../context/TranslateContext';
+import { useLang } from '../../context/LangContext';
 
 import Header from './Header';
 import Footer from './Footer';
 
-export default function Layout({children, ...props}) {
-    console.log(props);
+export default function Layout({
+    children,
+    ...props
+}) {
+
     useEffect(() => {
         const setViewportHeight = () => {
             const vh = window.innerHeight * 0.01;
