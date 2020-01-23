@@ -8,16 +8,13 @@ module.exports = (themeOptions) => {
         siteMetadata: {
             title: 'Soluble Theme Source',
             author: 'Soluble Studio',
-            description: 'Source built by Soluble Team'
+            description: 'Source built by Soluble Team',
+            siteUrl: '',
+            primaryLanguage: 'es',
+            suffix: ''
         },
         plugins: [
             'gatsby-plugin-react-helmet',
-            {
-                resolve: `gatsby-plugin-layout`,
-                options: {
-                    component: require.resolve(`${__dirname}/src/components/Layout`),
-                },
-            },
             {
                 resolve: `gatsby-source-airtable`,
                 options: airtable

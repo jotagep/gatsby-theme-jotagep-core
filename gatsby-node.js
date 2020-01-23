@@ -4,12 +4,12 @@ const mkdirp = require(`mkdirp`);
 const Debug = require(`debug`);
 const { createFilePath, createRemoteFileNode } = require('gatsby-source-filesystem');
 const { fmImagesToRelative } = require('gatsby-remark-relative-images');
-//const { getMarkedText } = require('./src/utils/marked');
+const { getMarkedText } = require('./utils/marked');
 
 const debug = Debug(`gatsby-theme-soluble-source`);
 const withDefaults = require(`./utils/default-options`);
 
-exports.onPreBootstrap = ({ store }, themeOptions) => {
+exports.onPreBootstrap = async ({ store, graphql }, themeOptions) => {
     const { program } = store.getState()
     const { contentPath, assetPath, uploadsPath, local = true, cms = false } = withDefaults(themeOptions)
   
@@ -34,6 +34,24 @@ exports.onPreBootstrap = ({ store }, themeOptions) => {
 
 exports.createPages = async ({ actions, graphql, ...props }, themeOptions) => {
     const { createPage } = actions;
+    const {templatesPath } = withDefaults(themeOptions)
+
+    const dataUrl = await graphql(`
+      {
+        site {
+            siteMetadata {
+              siteUrl
+              primaryLanguage
+            }
+        }
+      }
+    `);
+
+    const primaryLanguage = dataUrl.data.site.siteMetadata;
+    let url = dataUrl.data.site.siteMetadata.siteUrl ? dataUrl.data.site.siteMetadata.siteUrl.trim() : '';
+    if (url.slice(-1) !== '/') {
+      url += '/';
+    }
 
     if (themeOptions.local) {
         const dataLocal = await graphql(`
@@ -57,6 +75,19 @@ exports.createPages = async ({ actions, graphql, ...props }, themeOptions) => {
                       frontmatter {
                           templateKey
                           language
+                          seo {
+                            title
+                            description
+                            image {
+                                childImageSharp {
+                                    resize(width: 1200, height: 630) {
+                                        src
+                                    }
+                                }
+                            }
+                            noindex
+                            removeSuffix
+                        }
                       }
                   }
               }
@@ -71,8 +102,11 @@ exports.createPages = async ({ actions, graphql, ...props }, themeOptions) => {
                 component: path.resolve(`${__dirname}/src/templates/index.js`),
                 context: {
                     id: edge.node.id,
-                    language: edge.node.frontmatter.language,
-                    name: edge.node.frontmatter.templateKey
+                    url,
+                    pageUrl: `${url}${edge.node.fields.slug}`,
+                    language: edge.node.frontmatter.language || primaryLanguage,
+                    name: edge.node.frontmatter.templateKey,
+                    seo: edge.node.frontmatter.seo
                 },
             });
         });
@@ -85,16 +119,31 @@ exports.createPages = async ({ actions, graphql, ...props }, themeOptions) => {
           allAirtable(
             filter: {
               data: {
-                template_key: {glob: "*",  ne: "_translation"}
+                templateKey: {glob: "*",  ne: "_translation"}
               }
             }
           ) {
             edges {
               node {
                 id
+                table
                 data {
-                  template_key
-                  Name
+                  templateKey
+                  language
+                  slug
+                  seoTitle
+                  seoDescription
+                  noIndex
+                  removeSuffix
+                  seoImage {
+                    localFiles {
+                      childImageSharp {
+                        resize(width: 1200, height: 630) {
+                            src
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -104,20 +153,31 @@ exports.createPages = async ({ actions, graphql, ...props }, themeOptions) => {
         const pages = dataAirtable.data.allAirtable.edges;
 
         pages.forEach(edge => {
+          const seo = {
+            title: edge.node.data.seoTitle,
+            description: edge.node.data.seoDescription,
+            image: edge.node.data.seoImage ? edge.node.data.seoImage.localFiles[0] : null,
+            noIndex: edge.node.data.noIndex,
+            removeSuffix: edge.node.data.removeSuffix
+          }
+
           createPage({
-            path: `/${edge.node.data.Name}`,
-            component: path.resolve(`${__dirname}/src/templates/index.js`),
+            path: `/${edge.node.data.slug}`,
+            component: path.resolve(`${templatesPath}/${edge.node.data.templateKey}.js`),
             context: {
                 id: edge.node.id,
-                name: edge.node.data.Name
+                url,
+                pageUrl: `${url}${edge.node.data.slug}`,
+                language: edge.node.data.language || primaryLanguage,
+                seo
             }
           });
         })
     }
 }
 
-exports.onCreateNode = async ({ node, actions, getNode }) => {
-  const { createNodeField } = actions;
+exports.onCreateNode = async ({ node, actions, store, cache, createNodeId, getNode }) => {
+  const { createNode, createNodeField } = actions;
   
   fmImagesToRelative(node); // convert image paths for gatsby images
 
@@ -146,14 +206,41 @@ exports.onCreateNode = async ({ node, actions, getNode }) => {
   }
 }
 
-exports.createSchemaCustomization = ({ actions }) => {
-  const { createTypes } = actions;
+exports.createSchemaCustomization = ({ actions, cache, }) => {
+  const { createTypes, createFieldExtension } = actions;
+
+  createFieldExtension({
+      name: "md",
+      args: {
+          animate: {
+              type: "Boolean!",
+              defaultValue: false
+          }
+      },
+      extend: (options) => ({
+          resolve(source, args, context, info) {
+              if (source[info.fieldName]) {
+                  return getMarkedText(source[info.fieldName]);
+              } 
+              return null;
+          }
+      })
+  });
 
   const typeDefs = `
     type MarkdownRemarkFrontmatter implements Node {
       en: String,
       es: String,
-      key: String
+      key: String,
+      seo: SeoMarkdown
+    }
+
+    type SeoMarkdown {
+      title: String,
+      description: String,
+      image: File @fileByRelativePath,
+      noindex: Boolean,
+      removeSuffix: Boolean,
     }
   `;
 

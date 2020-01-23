@@ -26,7 +26,7 @@ const LangProvider = ({children, options = {}}) => {
                     }
                 }
             }
-            airtable: allAirtable(filter: {data: {template_key: {eq: "_translation"}}}) {
+            airtable: allAirtable(filter: {data: {templateKey: {eq: "_translation"}}}) {
                 edges {
                     node {
                         id
@@ -88,7 +88,7 @@ function useLang() {
 }
 
 function useTranslate(key) {
-    const { state, setState } = useContext(LangContext);
+    const { state } = useContext(LangContext);
 
     return state.translate[key] && state.translate[key][state.lang];
 }

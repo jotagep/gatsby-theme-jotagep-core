@@ -2,7 +2,7 @@
   "name": "gatsby-theme-soluble-source",
   "description": "Gatsby theme soluble source",
   "version": "1.0.0",
-  "main": "gatsby-config.js",
+  "main": "index.js",
   "license": "MIT",
   "scripts": {
     "format": "prettier --write \"**/*.{js,jsx,json,md}\""
@@ -26,6 +26,7 @@
     "gatsby-source-mailchimp": "^0.7.0",
     "gatsby-transformer-remark": "^2.3.4",
     "gatsby-transformer-sharp": "^2.1.9",
+    "marked": "^0.8.0",
     "react-helmet": "^5.2.1"
   },
   "devDependencies": {
