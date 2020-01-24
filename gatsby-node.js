@@ -11,7 +11,8 @@ const withDefaults = require(`./utils/default-options`);
 
 exports.onPreBootstrap = async ({ store, graphql }, themeOptions) => {
     const { program } = store.getState()
-    const { contentPath, assetPath, uploadsPath, local = true, cms = false } = withDefaults(themeOptions)
+    const { contentPath, assetPath, uploadsPath } = withDefaults(themeOptions);
+    const { local = true, cms = false } = themeOptions;
   
     const dirs = [
       path.join(program.directory, assetPath)
@@ -162,7 +163,7 @@ exports.createPages = async ({ actions, graphql, ...props }, themeOptions) => {
           }
 
           createPage({
-            path: `/${edge.node.data.slug}`,
+            path: `/${edge.node.data.slug}/`,
             component: path.resolve(`${templatesPath}/${edge.node.data.templateKey}.js`),
             context: {
                 id: edge.node.id,

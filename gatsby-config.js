@@ -19,13 +19,14 @@ module.exports = (themeOptions) => {
                 resolve: `gatsby-source-airtable`,
                 options: airtable
             },
+            ...(local ? [
             {
                 resolve: 'gatsby-source-filesystem',
                 options: {
                     path: options.contentPath,
                     name: 'content',
                 },
-            },
+            }] : []),
             ...(cms ? [
                 {
                     resolve: 'gatsby-source-filesystem',
