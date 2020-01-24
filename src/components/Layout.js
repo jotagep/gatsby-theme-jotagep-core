@@ -81,7 +81,9 @@ export default function Layout({
             </Helmet>
             <div>
                 <Header />
+                <main>
                     {children}
+                </main>
                 <Footer />
             </div>
         </>
