@@ -1,4 +1,3 @@
-//import { useEffect } from 'react';
 import { useLang } from './LangContext';
 
 export default function LangWrapper({children, language}) {
