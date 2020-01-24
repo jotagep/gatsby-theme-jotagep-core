@@ -85,7 +85,7 @@ exports.createPages = async ({ actions, graphql, ...props }, themeOptions) => {
                                     }
                                 }
                             }
-                            noindex
+                            noIndex
                             removeSuffix
                         }
                       }

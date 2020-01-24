@@ -7,6 +7,11 @@ const LangProvider = ({children, options = {}}) => {
 
     const dataTranslate = useStaticQuery(graphql`
         query  {
+            site {
+                siteMetadata {
+                  primaryLanguage
+                }
+            }
             local: allMarkdownRemark(
                 filter: {
                     frontmatter: {
@@ -41,6 +46,7 @@ const LangProvider = ({children, options = {}}) => {
         }        
     `);
 
+    const primaryLanguage = dataTranslate.site.siteMetadata.primaryLanguage;
     const translateInitial = options.dictionaryConstants || {};
 
     if (options.local) {
@@ -62,7 +68,7 @@ const LangProvider = ({children, options = {}}) => {
     }
 
     const [state, setState] = useState({
-        lang: null,
+        lang: primaryLanguage,
         translate: translateInitial
     });
 

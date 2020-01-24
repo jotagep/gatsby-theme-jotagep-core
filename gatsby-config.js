@@ -39,7 +39,7 @@ module.exports = (themeOptions) => {
                 resolve: 'gatsby-source-filesystem',
                 options: {
                     path: options.assetPath,
-                    name: 'images',
+                    name: 'assets',
                 },
             },
             {
@@ -70,7 +70,7 @@ module.exports = (themeOptions) => {
                         {
                             resolve: 'gatsby-remark-relative-images',
                             options: {
-                            name: 'uploads',
+                            name: 'assets',
                             },
                         },
                         {

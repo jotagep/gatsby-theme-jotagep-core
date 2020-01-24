@@ -1,9 +1,9 @@
 module.exports = themeOptions => {
     const basePath = themeOptions.basePath || `/`;
     const templatesPath = themeOptions.templatesPath || `src/templates`;
-    const assetPath = themeOptions.assetPath || `content/assets`;
     const contentPath = themeOptions.contentPath || `content/pages`;
-    const uploadsPath = themeOptions.uploadsPath || `content/uploads`;
+    const assetPath = themeOptions.assetPath || `static/assets`;
+    const uploadsPath = themeOptions.uploadsPath || `static/uploads`;
 
     return {
         basePath,
