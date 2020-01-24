@@ -228,7 +228,12 @@ exports.createSchemaCustomization = ({ actions, cache, }) => {
   });
 
   const typeDefs = `
-    type MarkdownRemarkFrontmatter implements Node {
+    type MarkdownRemark implements Node @infer{
+      frontmatter: Frontmatter
+    }
+
+    type Frontmatter {
+      templateKey: String
       en: String,
       es: String,
       key: String,
@@ -242,6 +247,8 @@ exports.createSchemaCustomization = ({ actions, cache, }) => {
       noindex: Boolean,
       removeSuffix: Boolean,
     }
+
+
   `;
 
   createTypes(typeDefs)
